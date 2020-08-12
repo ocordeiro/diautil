@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Calculadora de Próximo dia Útil</title>
+  </head>
+  <body>
+    <h1>Próximo dia Útil</h1>
+    <input type="date" id="date" />
+    <button id="calc">Calcular</button>
+    <input type="text" id="result" />
+
+    <script type="text/javascript">
+      function ready(fn) {
+        if (document.readyState != "loading") {
+          main();
+        } else {
+          document.addEventListener("DOMContentLoaded", fn);
+        }
+      }
+
+      function main() {
+        document.getElementById("calc").onclick = function () {
+          calc(function (result) {
+            var output = document.getElementById("result");
+            output.value = result;
+            output.select();
+            document.execCommand("copy");
+          });
+        };
+      }
+
+      function calc(callback) {
+        var request = new XMLHttpRequest();
+        var date = document.getElementById("date").value;
+        request.open(
+          "GET",
+          "https://elekto.com.br/api/Calendars/br-BC/Add?initialDate=" +
+            date +
+            "&days=1&type=work&finalAdjust=none",
+          true
+        );
+
+        request.onreadystatechange = function () {
+          if (this.readyState === 4) {
+            if (this.status >= 200 && this.status < 400) {
+              var data = JSON.parse(this.responseText);
+              var date = new Date(data).toLocaleDateString();
+              callback(date);
+            }
+          }
+        };
+        request.send();
+        request = null;
+      }
+    </script>
+  </body>
+</html>
